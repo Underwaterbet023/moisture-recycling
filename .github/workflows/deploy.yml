@@ -34,14 +34,15 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: Setup GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: Install Dependencies
         run: npm ci || npm install
 
       - name: Build Static Production Site
         run: npm run build
-
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
