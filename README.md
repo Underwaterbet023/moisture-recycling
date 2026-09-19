@@ -3,9 +3,6 @@
 > **Interactive 3D Land–Atmosphere Moisture Recycling Simulation**  
 > Developed for an **IIT Kharagpur** scientific research and educational initiative.
 
-[![Deploy to GitHub Pages](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/actions/workflows/deploy.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/actions/workflows/deploy.yml)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-brightgreen?style=flat&logo=github)](https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY_NAME/)
-[![WebGL 2.0](https://img.shields.io/badge/Graphics-Three.js_/_WebGL_2.0-00d4ff)](https://threejs.org/)
 
 ---
 
@@ -13,9 +10,8 @@
 
 Anyone can access and explore the complete 3D simulation in any modern web browser (Chrome, Edge, Safari, Firefox) with **zero installation**:
 
-👉 **[https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY_NAME/](https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY_NAME/)**
+👉 **[https://underwaterbet023.github.io/moisture-recycling/](https://underwaterbet023.github.io/moisture-recycling/)**
 
-*(Replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY_NAME` with your actual GitHub account and repository name upon pushing).*
 
 ---
 
@@ -92,7 +88,7 @@ npm install
 ```bash
 npm run dev
 ```
-Open **[http://localhost:5173/](http://localhost:5173/)** in your browser.
+Open **[https://underwaterbet023.github.io/moisture-recycling/](https://underwaterbet023.github.io/moisture-recycling/)** in your browser.
 
 ### 4. Build for Production
 ```bash
@@ -116,12 +112,12 @@ git init
 git add .
 git commit -m "feat: Moisture Recycling 3D scientific simulation"
 git branch -M main
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git
+git remote add origin https://github.com/Underwaterbet023/moisture-recycling.git
 git push -u origin main
 ```
 
 ### Step 2: Enable GitHub Pages in Repository Settings
-1. Go to your repository on GitHub: `https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME`
+1. Go to your repository on GitHub: `https://github.com/Underwaterbet023/moisture-recycling.git`
 2. Click **Settings** (top menu).
 3. In the left sidebar, click **Pages** (under the "Code and automation" section).
 4. Under **Build and deployment** > **Source**, select:
