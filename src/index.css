@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-navy-950: #050a18;
+  --color-navy-900: #0a1428;
+  --color-navy-800: #0f1e3c;
+  --color-navy-700: #162a50;
+  --color-navy-600: #1e3a6e;
+  --color-atmo-blue: #1a6dd4;
+  --color-atmo-cyan: #00d4ff;
+  --color-atmo-green: #34d399;
+  --color-atmo-yellow: #f0c040;
+  --color-atmo-red: #ef4444;
+  --color-glass-bg: rgba(10, 20, 40, 0.65);
+  --color-glass-border: rgba(30, 120, 200, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-navy-950);
+  color: #e0f0ff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Glassmorphism panel base */
+.glass-panel {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Scientific scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(30, 120, 200, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 120, 200, 0.5);
+}
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-switch.active {
+  background: rgba(0, 180, 255, 0.4);
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8ab4e0;
+  transition: transform 0.2s;
+}
+.toggle-switch.active::after {
+  transform: translateX(16px);
+  background: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+
+/* Glow text */
+.glow-text {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+}
+
+/* Data label styling */
+.data-label {
+  font-size: 10px;
+  color: rgba(160, 200, 240, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.data-value {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: #e0f0ff;
+}
+
+/* Synthetic data banner */
+.synthetic-banner {
+  background: rgba(240, 192, 64, 0.15);
+  border: 1px solid rgba(240, 192, 64, 0.3);
+  color: #f0c040;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 2px 12px;
+  border-radius: 4px;
+}

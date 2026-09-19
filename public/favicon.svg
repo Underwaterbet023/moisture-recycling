@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="waterGrad" x1="16" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="cloudGrad" x1="20" y1="20" x2="52" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#93c5fd"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Disc -->
+  <circle cx="32" cy="32" r="30" fill="#081426" stroke="#0ea5e9" stroke-width="2"/>
+  
+  <!-- Atmospheric Moisture Droplet -->
+  <path d="M32 10 C32 10 18 28 18 39 C18 47.8 24.3 54 32 54 C39.7 54 46 47.8 46 39 C46 28 32 10 32 10 Z" fill="url(#waterGrad)" opacity="0.9"/>
+  
+  <!-- Stylized Condensation Rings -->
+  <circle cx="32" cy="39" r="7" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.8"/>
+  <circle cx="32" cy="39" r="2.5" fill="#ffffff"/>
+  
+  <!-- Subtle advection arrow -->
+  <path d="M22 24 L27 18 L28 25" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
