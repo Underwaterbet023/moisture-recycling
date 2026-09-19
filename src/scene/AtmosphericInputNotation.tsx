@@ -21,11 +21,13 @@ const INPUT_VARS_EXPLANATION = [
 
 
 export function AtmosphericInputNotation() {
-  const { scientificOverlay, layers, setSelectedGridCell, simulationTime } = useSimulationStore();
+  const scientificOverlay = useSimulationStore((s) => s.scientificOverlay);
+  const sceneLabels = useSimulationStore((s) => s.layers.sceneLabels);
+  const setSelectedGridCell = useSimulationStore((s) => s.setSelectedGridCell);
   const [showInputModal, setShowInputModal] = useState(false);
 
   // Show when scientific overlay is ON or sceneLabels is ON
-  if (!scientificOverlay && !layers.sceneLabels) {
+  if (!scientificOverlay && !sceneLabels) {
     return null;
   }
 
@@ -132,8 +134,9 @@ export function AtmosphericInputNotation() {
           <div className="flex flex-col items-center">
             <div
               onClick={() => {
-                const cell = getCell(3, 4, 2, simulationTime);
-                const budget = computeMoistureBudget(3, 4, 2, simulationTime);
+                const simTime = useSimulationStore.getState().simulationTime;
+                const cell = getCell(3, 4, 2, simTime);
+                const budget = computeMoistureBudget(3, 4, 2, simTime);
                 setSelectedGridCell({
                   i: 3,
                   j: 4,

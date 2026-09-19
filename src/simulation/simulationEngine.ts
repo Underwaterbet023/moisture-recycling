@@ -44,12 +44,9 @@ function selectSource(): ParticleSource {
   return 'ocean';
 }
 
-// ── Main Tick ───────────────────────────────────────────────────────────────
+// Throttle timestamp for React Zustand store updates
+let lastStoreUpdateTime = 0;
 
-/**
- * Advance the simulation by dt seconds.
- * Called from the React Three Fiber render loop.
- */
 export function simulationTick(dt: number): void {
   const store = useSimulationStore.getState();
   if (!store.isPlaying) return;
@@ -59,15 +56,6 @@ export function simulationTick(dt: number): void {
   const quality = store.quality;
   const config = QUALITY_PARTICLE_CONFIGS[quality];
   const method = store.integrationMethod;
-
-  // Update simulation time in store
-  store.setSimulationTime(newTime);
-
-  // Update timestamp display
-  const hours = Math.floor(newTime / 3600) % 24;
-  const day = Math.floor(newTime / (3600 * 24));
-  const baseDay = 1 + day;
-  store.setSimulationTime(newTime);
 
   // ── Emit new particles ──
   const emitInterval = 1 / config.emissionRate; // seconds between emissions
@@ -87,17 +75,24 @@ export function simulationTick(dt: number): void {
   // ── Remove dead particles ──
   particles = particles.filter((p) => p.active);
 
-  // ── Update analytics ──
-  // Source contribution from synthetic provider
-  const contrib = getSourceContribution(newTime);
-  store.setSourceContribution(contrib);
+  // ── Throttle React store updates to 4-5 Hz (every 220ms) ──
+  // Keeps particle physics running at 60 FPS while saving 55+ heavy React DOM re-renders per second!
+  const now = performance.now();
+  if (now - lastStoreUpdateTime > 220) {
+    lastStoreUpdateTime = now;
+    store.setSimulationTime(newTime);
 
-  // Simple precipitation rate estimate from converging particles
-  const precipitating = particles.filter((p) => p.state === 'precipitating').length;
-  store.setPrecipitationRate(Math.max(2, 5 + precipitating * 0.3 + Math.sin(newTime * 0.0001) * 3));
+    // Source contribution from synthetic provider
+    const contrib = getSourceContribution(newTime);
+    store.setSourceContribution(contrib);
 
-  // ET rate
-  store.setEtRate(3.5 + Math.sin(newTime * 0.00015) * 1.5);
+    // Precipitation rate estimate from converging particles
+    const precipitating = particles.filter((p) => p.state === 'precipitating').length;
+    store.setPrecipitationRate(Math.max(2, 5 + precipitating * 0.3 + Math.sin(newTime * 0.0001) * 3));
+
+    // ET rate
+    store.setEtRate(3.5 + Math.sin(newTime * 0.00015) * 1.5);
+  }
 }
 
 /**

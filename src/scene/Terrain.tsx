@@ -4,7 +4,7 @@ import { TERRAIN, heightAt, biomeAt, BIOME_COLORS, slopeAt, coastLineX } from '@
 import { useSimulationStore } from '@/simulation/simulationStore';
 
 export function Terrain() {
-  const { layers } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
   const meshRef = useRef<THREE.Mesh>(null);
 
   // Continental center offset to balance western ocean and eastern landmass

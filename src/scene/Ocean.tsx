@@ -7,7 +7,8 @@ import { oceanWaterVertexShader } from '@/scene/shaders/OceanWaterVertex';
 import { oceanWaterFragmentShader } from '@/scene/shaders/OceanWaterFragment';
 
 export function Ocean() {
-  const { layers, timeOfDay } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
+  const timeOfDay = useSimulationStore((s) => s.timeOfDay);
   const meshRef = useRef<THREE.Mesh>(null);
 
   const uniforms = useMemo(
@@ -37,7 +38,7 @@ export function Ocean() {
       rotation={[-Math.PI / 2, 0, 0]}
       receiveShadow
     >
-      <planeGeometry args={[1600, 2400, 320, 320]} />
+      <planeGeometry args={[1600, 2400, 120, 160]} />
       <shaderMaterial
         vertexShader={oceanWaterVertexShader}
         fragmentShader={oceanWaterFragmentShader}

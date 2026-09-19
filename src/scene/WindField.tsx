@@ -7,7 +7,7 @@ import { syntheticU, syntheticV } from '@/simulation/syntheticDataProvider';
 import * as THREE from 'three';
 
 export function WindField() {
-  const { layers, simulationTime } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
   const particleRef = useRef<THREE.Points>(null);
 
   // Subtle flowing streamline particles (no giant yellow triangles)
@@ -39,14 +39,15 @@ export function WindField() {
     if (!layers.windVectors || !particleRef.current) return;
 
     const pos = particlePosAttr.array as Float32Array;
+    const simTime = useSimulationStore.getState().simulationTime;
 
     for (let i = 0; i < count; i++) {
       const x = pos[i * 3];
       const z = pos[i * 3 + 2];
       const { lat, lon } = sceneToGeo(x, z);
 
-      const u = syntheticU(lat, lon, 850, simulationTime);
-      const v = syntheticV(lat, lon, 850, simulationTime);
+      const u = syntheticU(lat, lon, 850, simTime);
+      const v = syntheticV(lat, lon, 850, simTime);
 
       // Smooth horizontal flow velocity
       pos[i * 3] += u * delta * 1.8;

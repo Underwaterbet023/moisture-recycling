@@ -4,7 +4,7 @@ import { heightAt } from '@/scene/terrainConfig';
 import { useSimulationStore } from '@/simulation/simulationStore';
 
 export function Farm() {
-  const { layers } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
   const cropRowsRef = useRef<THREE.InstancedMesh>(null);
   const soilPlotsRef = useRef<THREE.InstancedMesh>(null);
 

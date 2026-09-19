@@ -15,11 +15,12 @@ import * as THREE from 'three';
 const CLOUD_BASE_Y = 32.0;
 
 export function Precipitation() {
-  const { layers, precipitationRate } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
+  const precipitationRate = useSimulationStore((s) => s.precipitationRate);
   const pointsRef = useRef<THREE.Points>(null);
 
-  // Pool size of rain droplets
-  const maxDrops = 1400;
+  // Pool size of rain droplets (750 is plenty for dense, realistic rainfall)
+  const maxDrops = 750;
 
   // Particle state buffers: positions, velocities, lifetimes
   const { positions, colors, velocities, initialX, initialZ } = useMemo(() => {
@@ -107,8 +108,10 @@ export function Precipitation() {
       posArr[idx + 2] += windSpeedZ * delta;
 
       // Check ground/water collision
-      const groundY = heightAt(posArr[idx], posArr[idx + 2]);
-      if (posArr[idx + 1] <= groundY || posArr[idx + 1] < 0) {
+      // Elevation gate: terrain maxes out around 26-28m in the rain area.
+      // If Y >= 28, the droplet is guaranteed to be in mid-air!
+      const currentY = posArr[idx + 1];
+      if (currentY <= 0 || (currentY < 28 && currentY <= heightAt(posArr[idx], posArr[idx + 2]))) {
         // Reset droplet to cloud base with natural spatial jitter
         const isAlpine = i < maxDrops * 0.35;
         if (isAlpine) {

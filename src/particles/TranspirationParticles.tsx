@@ -5,7 +5,7 @@ import { SOURCE_REGIONS } from '@/scene/terrainConfig';
 import * as THREE from 'three';
 
 export function TranspirationParticles() {
-  const { layers } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
   const forestRef = useRef<THREE.Points>(null);
   const farmRef = useRef<THREE.Points>(null);
 

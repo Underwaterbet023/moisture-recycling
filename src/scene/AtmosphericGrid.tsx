@@ -11,7 +11,6 @@ export function AtmosphericGrid() {
   const layers = useSimulationStore((s) => s.layers);
   const setSelectedGridCell = useSimulationStore((s) => s.setSelectedGridCell);
   const selectedGridCell = useSimulationStore((s) => s.selectedGridCell);
-  const simulationTime = useSimulationStore((s) => s.simulationTime);
   const lineRef = useRef<THREE.LineSegments>(null);
 
   const { geometry, cellWidth, cellDepth } = useMemo(() => {
@@ -66,8 +65,9 @@ export function AtmosphericGrid() {
     const k = PRESSURE_LEVELS.reduce((best, p, idx) =>
       Math.abs(p - pressure) < Math.abs(PRESSURE_LEVELS[best] - pressure) ? idx : best, 0);
 
-    const cell = getCell(i, j, k, simulationTime);
-    const budget = computeMoistureBudget(i, j, k, simulationTime);
+    const simTime = useSimulationStore.getState().simulationTime;
+    const cell = getCell(i, j, k, simTime);
+    const budget = computeMoistureBudget(i, j, k, simTime);
 
     setSelectedGridCell({
       i, j, k,

@@ -23,7 +23,7 @@ const noise3 = createNoise2D(rand);
 export const TERRAIN = {
   // Main detailed watershed mesh dimensions (units ~ meters in scene scale)
   size: 700,
-  segments: 250,
+  segments: 160,
   maxHeight: 52,
   snowLine: 28,
   treeLineLow: 2,

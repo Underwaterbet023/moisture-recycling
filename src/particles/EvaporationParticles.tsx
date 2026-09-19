@@ -5,7 +5,7 @@ import { riverCenterX, riverWaterElevation } from '@/scene/terrainConfig';
 import * as THREE from 'three';
 
 export function EvaporationParticles() {
-  const { layers } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
   const oceanRef = useRef<THREE.Points>(null);
   const riverRef = useRef<THREE.Points>(null);
 

@@ -51,9 +51,9 @@ export function App() {
         <div className="absolute inset-0 z-0 pointer-events-auto">
           <Canvas
             shadows
-            dpr={[1, 2]}
+            dpr={[1, 1.3]}
             gl={{
-              antialias: true,
+              antialias: false,
               powerPreference: 'high-performance',
               alpha: false,
             }}

@@ -53,11 +53,11 @@ const cloudFragmentShader = /* glsl */ `
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
   }
 
-  // 3D Value / Simplex-style Gradient Noise
+  // 3D Value / Gradient Noise
   float noise3D(vec3 x) {
     vec3 p = floor(x);
     vec3 w = fract(x);
-    vec3 u = w * w * w * (w * (w * 6.0 - 15.0) + 10.0);
+    vec3 u = w * w * (3.0 - 2.0 * w);
 
     float n000 = hash(p + vec3(0.0, 0.0, 0.0));
     float n100 = hash(p + vec3(1.0, 0.0, 0.0));
@@ -79,41 +79,13 @@ const cloudFragmentShader = /* glsl */ `
     return mix(y0, y1, u.z);
   }
 
-  // 3D Fractal Brownian Motion (FBM) for natural atmospheric turbulence
-  float fbm3D(vec3 p) {
-    float v = 0.0;
-    float a = 0.5;
-    vec3 shift = vec3(100.0);
-    for (int i = 0; i < 4; i++) {
-      v += a * noise3D(p);
-      p = p * 2.02 + shift;
-      a *= 0.5;
-    }
-    return v;
-  }
-
-  // 3D Worley (Cellular) Noise for billowy cumulus cellular clusters
-  float worley3D(vec3 p) {
-    vec3 id = floor(p);
-    vec3 fd = fract(p);
-    float minDist = 1.0;
-
-    for (int x = -1; x <= 1; x++) {
-      for (int y = -1; y <= 1; y++) {
-        for (int z = -1; z <= 1; z++) {
-          vec3 offset = vec3(float(x), float(y), float(z));
-          vec3 cell = id + offset;
-          vec3 randPt = offset + vec3(
-            hash(cell + vec3(0.1, 0.0, 0.0)),
-            hash(cell + vec3(0.0, 0.2, 0.0)),
-            hash(cell + vec3(0.0, 0.0, 0.3))
-          );
-          float d = length(randPt - fd);
-          minDist = min(minDist, d);
-        }
-      }
-    }
-    return 1.0 - clamp(minDist, 0.0, 1.0);
+  // Fast procedural billowy cumulus noise (eliminates expensive 27-cell Worley loops)
+  float fastBillowNoise(vec3 p) {
+    float n1 = noise3D(p);
+    float b1 = 1.0 - abs(n1 * 2.0 - 1.0);
+    float n2 = noise3D(p * 2.15 + vec3(1.7, 9.2, 3.4));
+    float b2 = 1.0 - abs(n2 * 2.0 - 1.0);
+    return b1 * 0.68 + b2 * 0.32;
   }
 
   // ── Ray-Box Intersection ──
@@ -141,24 +113,17 @@ const cloudFragmentShader = /* glsl */ `
     if (any(greaterThan(abs(pNorm), vec3(1.0)))) return 0.0;
 
     // 1. Asymmetric Macro Profile (Stratocumulus / Cumulus profile)
-    // - Flat-ish bottom with soft condensation shelf
-    // - Rounded billowing domes at top
-    // - Radial horizontal decay
     float radial = length(pNorm.xz);
     if (radial >= 1.0) return 0.0;
 
-    // Bottom shelf fade: flatter bottom, soft transition
     float bottomFade = smoothstep(-1.0, -0.4, pNorm.y);
-    // Top dome fade: rounded billows dropping to zero at ceiling
     float topFade = smoothstep(1.0, 0.2, pNorm.y);
-    // Radial boundary fade: wispy outer edges
     float horizontalFade = smoothstep(1.0, 0.2, radial);
 
     float macroShape = bottomFade * topFade * horizontalFade;
     if (macroShape <= 0.01) return 0.0;
 
-    // 2. Multi-Tier Procedural Noise Field
-    // Slow temporal wind advection + continuous procedural morphing
+    // 2. Temporal wind advection + continuous procedural morphing
     vec3 windAdvect = vec3(uTime * uCloudSpeed * 0.35, 0.0, -uTime * uCloudSpeed * 0.12);
     vec3 morph = vec3(
       sin(uTime * 0.08) * 0.18,
@@ -167,41 +132,22 @@ const cloudFragmentShader = /* glsl */ `
     );
     vec3 sampleCoord = (pWorld * 0.045) + windAdvect + morph;
 
-    // Worley noise gives distinct cellular cumulus lobes
-    float worley = worley3D(sampleCoord * 1.6);
-    // Simplex FBM gives natural atmospheric turbulence & wispy micro-erosion
-    float perlin = fbm3D(sampleCoord * 2.8);
+    float combinedNoise = fastBillowNoise(sampleCoord * 1.6);
+    float detailNoise = (noise3D(sampleCoord * 4.2) - 0.5) * 0.18;
 
-    // Hybrid combination: 0.65 * Worley + 0.35 * Perlin
-    float combinedNoise = 0.65 * worley + 0.35 * perlin;
+    float threshold = 0.30 - (0.12 * macroShape);
+    float density = smoothstep(threshold, threshold + 0.42, combinedNoise + detailNoise);
 
-    // Secondary detail noise for wispy boundary edge erosion
-    float detailNoise = noise3D(sampleCoord * 5.5 + pWorld * 0.08) * 0.25;
-
-    // Density thresholding with smooth atmospheric roll-off
-    float threshold = 0.32 - (0.12 * macroShape);
-    float density = smoothstep(threshold, threshold + 0.45, combinedNoise - detailNoise);
-
-    // Modulate by macro shape and specific humidity / moisture budget factor
     density *= macroShape * uMoistureDensity;
-
     return density;
   }
 
-  // ── Volumetric Light Extinction & Self-Shadowing (Secondary Light Ray) ──
-  float sampleSunTransmittance(vec3 p) {
+  // ── Single-Probe Light Extinction & Self-Shadowing ──
+  float sampleSunTransmittance(vec3 p, float currentDensity) {
     vec3 lightDir = normalize(uSunDirection);
-    float stepDist = 1.8;
-    float opticalDepth = 0.0;
-
-    for (float i = 1.0; i <= 4.0; i += 1.0) {
-      vec3 sampleP = p + lightDir * (i * stepDist);
-      opticalDepth += sampleCloudDensity(sampleP);
-    }
-
-    // Beer-Lambert law: T = exp(-sigma * opticalDepth)
-    float beer = exp(-opticalDepth * 2.6);
-    return beer;
+    float lightSample = sampleCloudDensity(p + lightDir * 3.8);
+    float opticalDepth = currentDensity * 1.6 + lightSample * 3.0;
+    return exp(-opticalDepth * 2.2);
   }
 
   void main() {
@@ -240,8 +186,8 @@ const cloudFragmentShader = /* glsl */ `
       float density = sampleCloudDensity(p);
 
       if (density > 0.002) {
-        // Sample secondary ray toward sun for self-shadowing
-        float sunTrans = sampleSunTransmittance(p);
+        // Sample single-probe extinction toward sun for self-shadowing
+        float sunTrans = sampleSunTransmittance(p, density);
 
         // Powder effect: cloud edges catch more scattered light than thick dense interiors
         float powder = 1.0 - exp(-density * 3.5);
@@ -312,14 +258,14 @@ export function VolumetricCloud({
   const maxSteps = useMemo(() => {
     switch (cloudQuality) {
       case 'low':
-        return 28;
+        return 16;
       case 'medium':
-        return 44;
+        return 22;
       case 'ultra':
-        return 88;
+        return 34;
       case 'high':
       default:
-        return 60;
+        return 26;
     }
   }, [cloudQuality]);
 

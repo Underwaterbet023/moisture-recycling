@@ -5,7 +5,7 @@ import { TERRAIN, heightAt, biomeAt, isNearAnyWater } from '@/scene/terrainConfi
 import { useSimulationStore } from '@/simulation/simulationStore';
 
 export function Forest() {
-  const { layers } = useSimulationStore();
+  const layers = useSimulationStore((s) => s.layers);
   const coniferRef = useRef<THREE.InstancedMesh>(null);
   const deciduousRef = useRef<THREE.InstancedMesh>(null);
 
@@ -31,13 +31,13 @@ export function Forest() {
     };
 
     let attempts = 0;
-    while ((conifers.length + deciduous.length < 7500) && attempts < 90000) {
+    while ((conifers.length + deciduous.length < 2800) && attempts < 35000) {
       attempts++;
-      // Distribute across the vast continental watershed (x in [-30, 390], z in [-280, 260])
+      // Distribute across the continental watershed (x in [-30, 390], z in [-280, 260])
       const x = -30 + rnd() * 420;
       const z = -280 + rnd() * 540;
 
-      // Keep trees strictly clear of all water channels (streams, waterfalls, tributaries, main river)
+      // Keep trees strictly clear of all water channels
       if (isNearAnyWater(x, z, 3.5)) continue;
 
       const h = heightAt(x, z);
@@ -45,7 +45,7 @@ export function Forest() {
 
       if (b === 'forest' || (b === 'grass' && h > 2.5 && h < 22 && rnd() < 0.42)) {
         const isConifer = h > 7.5 || rnd() > 0.45;
-        const scale = 0.75 + rnd() * 0.85;
+        const scale = 0.95 + rnd() * 1.1;
         const rotY = rnd() * Math.PI * 2;
 
         if (isConifer) {
@@ -129,7 +129,6 @@ export function Forest() {
       <instancedMesh
         ref={coniferRef}
         args={[coniferGeo, undefined, coniferData.length]}
-        castShadow
         receiveShadow
       >
         <meshStandardMaterial roughness={0.9} metalness={0.05} />
@@ -137,7 +136,6 @@ export function Forest() {
       <instancedMesh
         ref={deciduousRef}
         args={[deciduousGeo, undefined, deciduousData.length]}
-        castShadow
         receiveShadow
       >
         <meshStandardMaterial roughness={0.85} metalness={0.05} />
